@@ -50,6 +50,11 @@ assert_eq "$expected" "$actual" \
 custom_message_output="$(tests/scripts/add_cmd_with_args.sh greet --name="John Smith" --message="hello world message")"
 custom_message_actual="$(printf '%s' "$custom_message_output" | strip_colors)"
 
+expected="Name: John Smith"
+actual="$(printf '%s' "$custom_message_actual" | grep "^Name:")"
+assert_eq "$expected" "$actual" \
+    "Should override default name with custom spaced value"
+
 expected="Message: hello world message"
 actual="$(printf '%s' "$custom_message_actual" | grep "^Message:")"
 assert_eq "$expected" "$actual" \
