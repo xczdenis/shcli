@@ -86,10 +86,10 @@ add_arg() {
     local help="$3"
     local upper
 
-    GFLAG_NAMES+=( "$name" )
-    GFLAG_DEF+=( "$def" )
-    GFLAG_HELP+=( "$help" )
-    GFLAG_VAL+=( "$def" )
+    GFLAG_NAMES+=("$name")
+    GFLAG_DEF+=("$def")
+    GFLAG_HELP+=("$help")
+    GFLAG_VAL+=("$def")
 
     upper=$(_cli_to_upper "$name")
     export "${_CLI_ARG_PREFIX}${upper}"="$def"
@@ -101,8 +101,8 @@ add_cmd() {
     local name="$1"
     local help="$2"
 
-    CMD_NAMES+=( "$name" )
-    CMD_HELP+=( "$help" )
+    CMD_NAMES+=("$name")
+    CMD_HELP+=("$help")
 }
 
 # add_cmd_arg cmd flag default help
@@ -113,11 +113,11 @@ add_cmd_arg() {
     local def="$3"
     local help="$4"
 
-    CFLAG_CMDS+=( "$cmd" )
-    CFLAG_NAMES+=( "$flag" )
-    CFLAG_DEF+=( "$def" )
-    CFLAG_HELP+=( "$help" )
-    CFLAG_VAL+=( "$def" )
+    CFLAG_CMDS+=("$cmd")
+    CFLAG_NAMES+=("$flag")
+    CFLAG_DEF+=("$def")
+    CFLAG_HELP+=("$help")
+    CFLAG_VAL+=("$def")
 }
 
 # cli_run "$@"
@@ -133,71 +133,80 @@ cli_run() {
         token="$1"
         shift
         case "$token" in
-            -h|--help)
-                if [[ -z "$cmd" && $commands_exist -eq 0 ]]; then
-                    _print_global_help
-                    return
-                elif [[ -z "$cmd" ]]; then
-                    _print_help
-                    return
-                else
-                    _print_cmd_help "$cmd"
-                    return
-                fi
-                ;;
-            --*)
-                # Long flag: --name or --name=value
-                key="${token%%=*}"
-                key="${key#--}"
-                if [[ "$token" == *"="* ]]; then
-                    val="${token#*=}"
-                else
-                    val=true
-                fi
+        -h | --help)
+            if [[ -z "$cmd" && $commands_exist -eq 0 ]]; then
+                _print_global_help
+                return
+            elif [[ -z "$cmd" ]]; then
+                _print_help
+                return
+            else
+                _print_cmd_help "$cmd"
+                return
+            fi
+            ;;
+        --*)
+            # Long flag: --name or --name=value
+            key="${token%%=*}"
+            key="${key#--}"
+            if [[ "$token" == *"="* ]]; then
+                val="${token#*=}"
+            else
+                val=true
+            fi
 
-                # First try command-specific flag (if we already know the command)
-                if [[ -n "$cmd" ]]; then
-                    idx=$(_cli_cflag_index "$cmd" "$key")
-                    if [[ "$idx" != "-1" ]]; then
-                        CFLAG_VAL[$idx]="$val"
-                        upper=$(_cli_to_upper "$key")
-                        export "${_CLI_ARG_PREFIX}${upper}"="$val"
-                        continue
-                    fi
-                fi
-
-                # Then try global flag
-                idx=$(_cli_gflag_index "$key")
+            # First try command-specific flag (if we already know the command)
+            if [[ -n "$cmd" ]]; then
+                idx=$(_cli_cflag_index "$cmd" "$key")
                 if [[ "$idx" != "-1" ]]; then
-                    GFLAG_VAL[$idx]="$val"
+                    CFLAG_VAL[$idx]="$val"
                     upper=$(_cli_to_upper "$key")
                     export "${_CLI_ARG_PREFIX}${upper}"="$val"
-                else
-                    # Unknown flag -> positional
-                    rem+=( "$token" )
+                    continue
                 fi
-                ;;
-            *)
-                # First non-flag might be a command name
-                if [[ -z "$cmd" ]]; then
-                    local i
-                    for i in "${!CMD_NAMES[@]}"; do
-                        if [[ "${CMD_NAMES[$i]}" == "$token" ]]; then
-                            cmd="$token"
-                            break
-                        fi
-                    done
-                    if [[ -n "$cmd" ]]; then
-                        continue
+            fi
+
+            # Then try global flag
+            idx=$(_cli_gflag_index "$key")
+            if [[ "$idx" != "-1" ]]; then
+                GFLAG_VAL[$idx]="$val"
+                upper=$(_cli_to_upper "$key")
+                export "${_CLI_ARG_PREFIX}${upper}"="$val"
+            else
+                # Unknown flag -> positional
+                rem+=("$token")
+            fi
+            ;;
+        *)
+            # First non-flag might be a command name
+            if [[ -z "$cmd" ]]; then
+                local i
+                for i in "${!CMD_NAMES[@]}"; do
+                    if [[ "${CMD_NAMES[$i]}" == "$token" ]]; then
+                        cmd="$token"
+                        break
                     fi
+                done
+                if [[ -n "$cmd" ]]; then
+                    continue
                 fi
-                rem+=( "$token" )
-                ;;
+            fi
+            rem+=("$token")
+            ;;
         esac
     done
 
     # Dispatch
     if [[ -n "$cmd" ]]; then
+        # Export default values for command-specific flags before running command
+        local i upper
+        for i in "${!CFLAG_CMDS[@]}"; do
+            if [[ "${CFLAG_CMDS[$i]}" == "$cmd" ]]; then
+                upper=$(_cli_to_upper "${CFLAG_NAMES[$i]}")
+                export "${_CLI_ARG_PREFIX}${upper}"="${CFLAG_VAL[$i]}"
+            fi
+        done
+
         "$cmd" "${rem[@]}"
         return
     fi
@@ -245,7 +254,7 @@ _print_help() {
         for i in "${!GFLAG_NAMES[@]}"; do
             ((${#GFLAG_NAMES[$i]} > g_width)) && g_width=${#GFLAG_NAMES[$i]}
         done
-        g_width=$((g_width + 4))  # account for leading "--"
+        g_width=$((g_width + 4)) # account for leading "--"
 
         echo
         echo "${_cli_color_green}Global flags:${_cli_color_reset}"
@@ -284,7 +293,7 @@ _print_cmd_help() {
             ((${#CFLAG_NAMES[$i]} > f_width)) && f_width=${#CFLAG_NAMES[$i]}
         fi
     done
-    f_width=$((f_width + 4))  # for "--"
+    f_width=$((f_width + 4)) # for "--"
 
     local have_flags=0
     for i in "${!CFLAG_CMDS[@]}"; do
