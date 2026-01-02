@@ -38,15 +38,15 @@ echo -e "${GREEN}=====================${NC}"
 echo
 
 for test_file in "${test_files[@]}"; do
-    ((total_tests++))
+    ((++total_tests))
     test_name="$(basename "$test_file")"
     echo -e "${YELLOW}Running test: ${test_name}${NC}"
     # Always run tests with bash to keep behavior consistent
     if bash "$test_file"; then
-        ((passed_tests++))
+        ((++passed_tests))
         echo -e "${GREEN}✓ PASS: $test_name${NC}"
     else
-        ((failed_tests++))
+        ((++failed_tests))
         echo -e "${RED}✗ FAIL: $test_name${NC}"
     fi
     echo
