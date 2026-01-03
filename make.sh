@@ -57,9 +57,9 @@ build() {
     echo "Example: ./make.sh build ${name} --target=prod --optimize=true"
 
     if [[ "${CLI_ARG_OPTIMIZE}" == "true" ]]; then
-        echo "Optimizations enabled — using release flags."
+        echo "Optimizations enabled - using release flags."
     else
-        echo "Optimizations disabled — using simpler build."
+        echo "Optimizations disabled - using simpler build."
     fi
 }
 
