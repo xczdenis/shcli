@@ -3,6 +3,28 @@ set -euo pipefail
 
 source "tests_lib.sh"
 
+# case 0 - help should show global usage and registered global flags
+help_output="$(tests/scripts/main_with_args.sh --help)"
+help_actual="$(printf '%s' "$help_output" | strip_colors)"
+
+assert_contains "Usage: main_with_args.sh" "$help_actual" \
+    "Should show global-only usage when no commands are registered"
+assert_contains "Flags:" "$help_actual" \
+    "Should list the flags section for a global-only script"
+assert_contains "--arg1" "$help_actual" \
+    "Should include the first global flag in help output"
+assert_contains "--arg2" "$help_actual" \
+    "Should include the second global flag in help output"
+
+# case 0.1 - short help flag should behave like --help
+short_help_output="$(tests/scripts/main_with_args.sh -h)"
+short_help_actual="$(printf '%s' "$short_help_output" | strip_colors)"
+
+assert_contains "Usage: main_with_args.sh" "$short_help_actual" \
+    "Should support -h as a short alias for help"
+assert_contains "Flags:" "$short_help_actual" \
+    "Short help should still print the flags section"
+
 # case 1
 output="$(tests/scripts/main_with_args.sh)"
 

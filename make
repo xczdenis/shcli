@@ -2,10 +2,10 @@
 
 # Demo script for cli.sh.
 # Shows:
-# - basic run: ./make.sh
-# - positional args: ./make.sh "arg1" "arg2"
-# - command: ./make.sh echo_line "text"
-# - command with named args: ./make.sh build demo --target=prod --optimize=true
+# - basic run: ./make
+# - positional args: ./make "arg1" "arg2"
+# - command: ./make echo_line "text"
+# - command with named args: ./make build demo --target=prod --optimize=true
 
 source ./cli.sh
 
@@ -25,7 +25,7 @@ main() {
     echo "  2: ${second}"
 
     echo "Global flag --greeting: ${CLI_ARG_GREETING}"
-    echo "Try: ./make.sh \"arg1\" \"arg2\" --greeting=Howdy"
+    echo "Try: ./make \"arg1\" \"arg2\" --greeting=Howdy"
     echo "Available commands: echo_line, build (see --help for details)."
 }
 
@@ -40,7 +40,7 @@ echo_line() {
     echo "Greeting: ${CLI_ARG_GREETING}"
     echo "Text: ${text}"
     echo "Mood (--mood): ${CLI_ARG_MOOD}"
-    echo "Change mood: ./make.sh echo_line \"this CLI\" --mood=excited"
+    echo "Change mood: ./make echo_line \"this CLI\" --mood=excited"
 }
 
 add_cmd build "Build a project with named flags"
@@ -54,7 +54,7 @@ build() {
     echo "Building '${name}'"
     echo "Target (--target): ${CLI_ARG_TARGET} (default: debug)"
     echo "Optimize (--optimize): ${CLI_ARG_OPTIMIZE} (default: false)"
-    echo "Example: ./make.sh build ${name} --target=prod --optimize=true"
+    echo "Example: ./make build ${name} --target=prod --optimize=true"
 
     if [[ "${CLI_ARG_OPTIMIZE}" == "true" ]]; then
         echo "Optimizations enabled - using release flags."
