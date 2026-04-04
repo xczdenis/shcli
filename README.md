@@ -73,7 +73,7 @@ Run help and commands:
 Registers a global flag. The default is exported immediately to `CLI_ARG_<UPPERCASE_NAME>`.
 
 - Access inside functions as `${CLI_ARG_<UPPERCASE_NAME>}`.
-- Flags accept `--name=value` or `--name value` (the latter after quoting in your shell). If a flag appears without a value (e.g., `--verbose`), the stored value becomes `true`.
+- Flags accept `--name=value`. If a flag appears without a value (e.g., `--verbose`), the stored value becomes `true`.
 - Unknown flags are treated as positional arguments and forwarded unchanged to your command function.
 
 ### `add_cmd <name> <help>`
@@ -83,7 +83,7 @@ Registers a command. When `cli_run` sees the command token, it dispatches to a f
 Registers a flag that only applies to a specific command.
 
 - Defaults are exported to `CLI_ARG_<UPPERCASE_NAME>` right before the command runs.
-- Parsing behavior mirrors `add_arg` (supports `--flag=value` or `--flag value`, and `--flag` alone becomes `true`).
+- Parsing behavior mirrors `add_arg` (supports `--flag=value`, and `--flag` alone becomes `true`).
 
 ### `cli_run "$@"`
 Entry point that must be the last line of your script.
@@ -98,10 +98,11 @@ Entry point that must be the last line of your script.
   - Otherwise, an error is printed with a short usage summary.
 
 ## Parsing rules and environment export
-- Long flags only (`--flag`); short `-f` style flags are not supported.
+- Long flags only (`--flag`) for user-defined options; the built-in help aliases `--help` and `-h` are supported.
 - The first non-flag token selects the command when any commands have been registered; subsequent tokens are treated as positional arguments.
 - Flag defaults are set when you register them. Command-specific defaults are re-exported just before dispatch to ensure `CLI_ARG_*` is always available inside the command function.
 - All exported variables share the prefix `CLI_ARG_` (configurable via `_CLI_ARG_PREFIX` inside `cli.sh` if you need to change it).
+- Command-specific flags are recognized only after the command name has been seen.
 
 ## More usage patterns
 ### Forwarding positional arguments to commands
@@ -141,9 +142,15 @@ All help screens are colorized by default. You can tweak the ANSI codes near the
 ## Example scripts in this repo
 - `tests/scripts/main_no_args.sh`: Minimal `main()` with no flags.
 - `tests/scripts/main_with_args.sh`: Demonstrates global flags exported to `CLI_ARG_*`.
+- `tests/scripts/main_flag_behaviour.sh`: Shows boolean flags and unknown flags forwarded as positional arguments.
+- `tests/scripts/main_with_args_and_positionals.sh`: Demonstrates `main()` receiving both parsed flags and leftover positional args.
 - `tests/scripts/ping.sh`: Simple `ping` command.
 - `tests/scripts/add_cmd_no_args.sh`: Command dispatch with positional args.
 - `tests/scripts/add_cmd_with_args.sh`: Command-specific flags with defaults and overrides.
+- `tests/scripts/add_cmd_with_global_and_args.sh`: Mixes global flags, command-specific flags, and positional args.
+- `tests/scripts/cmd_help_global_flags.sh`: Minimal command help example showing global flags in command help.
+- `tests/scripts/no_main_no_cmd.sh`: Error path when neither a command nor `main()` exists.
+- `tests/scripts/unknown_command.sh`: Unknown command handling.
 
 Run any of them directly to see how parsing behaves.
 
@@ -151,13 +158,11 @@ Run any of them directly to see how parsing behaves.
 Run the full suite (requires Bash):
 
 ```bash
+chmod +x tests/*.sh
 ./tests.sh
 ```
-
-Each test prints colored output; failures exit non-zero.
 
 ## Design notes
 - Uses only indexed arrays for portability to older Bash versions.
 - Avoids associative arrays and external dependencies.
-- Long flags only; short options and combined flags are intentionally unsupported to keep the parser minimal.
-
+- Long flags only for user-defined options; only `-h` is supported as a built-in short help alias.
