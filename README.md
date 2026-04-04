@@ -144,21 +144,6 @@ cli_run "$@"
 ### Colorized help output
 All help screens are colorized by default. You can tweak the ANSI codes near the top of `cli.sh` if your environment requires different colors or if you prefer monochrome output.
 
-## Example scripts in this repo
-- `tests/scripts/main_no_args.sh`: Minimal `main()` with no flags.
-- `tests/scripts/main_with_args.sh`: Demonstrates global flags exported to `CLI_ARG_*`.
-- `tests/scripts/main_flag_behaviour.sh`: Shows boolean flags and unknown flags forwarded as positional arguments.
-- `tests/scripts/main_with_args_and_positionals.sh`: Demonstrates `main()` receiving both parsed flags and leftover positional args.
-- `tests/scripts/ping.sh`: Simple `ping` command.
-- `tests/scripts/add_cmd_no_args.sh`: Command dispatch with positional args.
-- `tests/scripts/add_cmd_with_args.sh`: Command-specific flags with defaults and overrides.
-- `tests/scripts/add_cmd_with_global_and_args.sh`: Mixes global flags, command-specific flags, and positional args.
-- `tests/scripts/cmd_help_global_flags.sh`: Minimal command help example showing global flags in command help.
-- `tests/scripts/no_main_no_cmd.sh`: Error path when neither a command nor `main()` exists.
-- `tests/scripts/unknown_command.sh`: Unknown command handling.
-
-Run any of them directly to see how parsing behaves.
-
 ## Testing
 Run the full suite (requires Bash):
 
