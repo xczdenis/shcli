@@ -8,24 +8,11 @@
 - **Colorful help**: Auto-generated usage with colorized sections for commands and flags.
 - **Tested examples**: The repo includes runnable examples and a small test suite.
 
-## Installation
-Source `cli.sh` from your Bash script. No packaging is required.
-
-```bash
-#!/usr/bin/env bash
-source /path/to/cli.sh
-```
-
-For local development inside this repo, source `./cli.sh` from the project root or copy it next to your script.
-
-## Core concepts
-- **Commands**: Named entry points (e.g., `deploy`, `ping`). If no command is provided, `cli_run` will fall back to a user-defined `main()` when present.
-- **Global flags**: Options that apply to all commands (e.g., `--verbose`).
-- **Command flags**: Options that apply only to a specific command (e.g., `deploy --env=prod`).
-- **Environment export**: After parsing, each flag value is exported as `CLI_ARG_<UPPERCASE_FLAG_NAME>` so you can reference it in your functions without additional parsing.
-
 ## Quickstart examples
 ### Single-entry script using `main()`
+
+Create file `make`:
+
 ```bash
 #!/usr/bin/env bash
 source ./cli.sh
@@ -41,11 +28,13 @@ cli_run "$@"
 
 Run it:
 ```bash
-./hello.sh --name=Sam
+./make --name=Sam
 # -> Hello, Sam!
 ```
 
 ### Command-based script with command-specific flags
+
+Create file `tool.sh`:
 ```bash
 #!/usr/bin/env bash
 source ./cli.sh
@@ -61,12 +50,28 @@ add_cmd_arg ping quiet false "Mute extra output"
 cli_run "$@"
 ```
 
-Run help and commands:
+Run it:
 ```bash
 ./tool.sh --help          # global help with commands listed
 ./tool.sh ping --help     # help for the ping command
 ./tool.sh ping --latency=250 --quiet
 ```
+
+## Installation
+Source `cli.sh` from your Bash script. No packaging is required.
+
+```bash
+#!/usr/bin/env bash
+source /path/to/cli.sh
+```
+
+For local development inside this repo, source `./cli.sh` from the project root or copy it next to your script.
+
+## Core concepts
+- **Commands**: Named entry points (e.g., `deploy`, `ping`). If no command is provided, `cli_run` will fall back to a user-defined `main()` when present.
+- **Global flags**: Options that apply to all commands (e.g., `--verbose`).
+- **Command flags**: Options that apply only to a specific command (e.g., `deploy --env=prod`).
+- **Environment export**: After parsing, each flag value is exported as `CLI_ARG_<UPPERCASE_FLAG_NAME>` so you can reference it in your functions without additional parsing.
 
 ## API reference
 ### `add_arg <name> <default> <help>`
